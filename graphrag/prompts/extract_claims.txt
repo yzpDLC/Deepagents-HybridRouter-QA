@@ -1,0 +1,52 @@
+
+-目标活动-
+你是一个智能助手，帮助人类分析师分析文本文档中针对特定实体的声明。
+
+-目标-
+给定一个可能与本次活动相关的文本文档、一个实体规范和一个声明描述，提取所有符合实体规范的实体以及针对这些实体的所有声明。
+
+-步骤-
+1. 提取所有符合预定义实体规范的命名实体。实体规范可以是实体名称列表或实体类型列表。
+2. 对于步骤1中识别的每个实体，提取与该实体相关的所有声明。声明需要符合指定的声明描述，并且实体应为声明的主体。
+   对于每个声明，提取以下信息：
+   - 主体：声明所针对的实体名称，首字母大写。主体实体是指执行声明中所描述动作的实体。主体必须是步骤1中识别的命名实体之一。
+   - 客体：声明所针对的客体实体名称，首字母大写。客体实体是指报告/处理声明中所描述动作或受其影响的实体。如果客体实体未知，则使用**NONE**。
+   - 声明类型：声明的总体类别，首字母大写。命名方式应能在多个文本输入中重复使用，使相似的声明共享相同的声明类型。
+   - 声明状态：**TRUE**、**FALSE**或**SUSPECTED**。TRUE表示声明已确认，FALSE表示声明被认定为虚假，SUSPECTED表示声明未经验证。
+   - 声明描述：解释声明背后推理的详细描述，以及所有相关证据和引用。
+   - 声明日期：声明提出时的期间（start_date, end_date）。start_date和end_date均应使用ISO-8601格式。如果声明是在单个日期而非日期范围内提出的，则将start_date和end_date设置为相同日期。如果日期未知，则返回**NONE**。
+   - 声明来源文本：与声明相关的原始文本中**所有**引用的列表。
+
+   将每个声明格式化为 (<subject_entity><|><object_entity><|><claim_type><|><claim_status><|><claim_start_date><|><claim_end_date><|><claim_description><|><claim_source>)
+
+3. 以英文输出，返回一个列表，包含步骤1和2中识别的所有声明。使用 **##** 作为列表分隔符。
+
+4. 完成后，输出 <|COMPLETE|>
+
+-示例-
+示例1：
+实体规范：organization
+声明描述：与实体相关的危险信号
+文本：According to an article on 2022/01/10, Company A was fined for bid rigging while participating in multiple public tenders published by Government Agency B. The company is owned by Person C who was suspected of engaging in corruption activities in 2015.
+输出：
+
+(COMPANY A<|>GOVERNMENT AGENCY B<|>ANTI-COMPETITIVE PRACTICES<|>TRUE<|>2022-01-10T00:00:00<|>2022-01-10T00:00:00<|>Company A was found to engage in anti-competitive practices because it was fined for bid rigging in multiple public tenders published by Government Agency B according to an article published on 2022/01/10<|>According to an article published on 2022/01/10, Company A was fined for bid rigging while participating in multiple public tenders published by Government Agency B.)
+<|COMPLETE|>
+
+示例2：
+实体规范：Company A, Person C
+声明描述：与实体相关的危险信号
+文本：According to an article on 2022/01/10, Company A was fined for bid rigging while participating in multiple public tenders published by Government Agency B. The company is owned by Person C who was suspected of engaging in corruption activities in 2015.
+输出：
+
+(COMPANY A<|>GOVERNMENT AGENCY B<|>ANTI-COMPETITIVE PRACTICES<|>TRUE<|>2022-01-10T00:00:00<|>2022-01-10T00:00:00<|>Company A was found to engage in anti-competitive practices because it was fined for bid rigging in multiple public tenders published by Government Agency B according to an article published on 2022/01/10<|>According to an article published on 2022/01/10, Company A was fined for bid rigging while participating in multiple public tenders published by Government Agency B.)
+##
+(PERSON C<|>NONE<|>CORRUPTION<|>SUSPECTED<|>2015-01-01T00:00:00<|>2015-12-30T00:00:00<|>Person C was suspected of engaging in corruption activities in 2015<|>The company is owned by Person C who was suspected of engaging in corruption activities in 2015)
+<|COMPLETE|>
+
+-实际数据-
+请使用以下输入来回答。
+实体规范：{entity_specs}
+声明描述：{claim_description}
+文本：{input_text}
+输出：

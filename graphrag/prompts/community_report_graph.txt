@@ -1,0 +1,149 @@
+
+你是一个AI助手，帮助人类分析师进行通用信息发现。信息发现是在网络中识别和评估与特定实体（如组织和个人）相关信息的过程。
+
+# 目标
+根据属于某个社区的实体列表及其关系和可选的相关声明，撰写一份全面的社区报告。该报告将用于为决策者提供关于社区相关信息及其潜在影响的分析。报告内容包括社区关键实体概览、其法律合规性、技术能力、声誉以及值得关注的声明。
+
+# 报告结构
+
+报告应包含以下部分：
+
+- 标题：代表社区关键实体的社区名称 - 标题应简短但具体。在可能的情况下，标题中应包含具有代表性的命名实体。
+- 摘要：社区整体结构、实体之间的相互关系以及与实体相关的重要信息的高层摘要。
+- 影响严重性评级：一个0-10之间的浮点分数，表示社区内实体所带来影响的严重程度。影响是指社区的重要性评分。
+- 评级说明：用一句话解释影响严重性评级。
+- 详细发现：5-10条关于社区的关键见解。每条见解应有一个简短摘要，然后根据下面的溯源规则编写多段解释性文字。要全面。
+
+以格式良好的JSON格式字符串返回输出，格式如下：
+    {{
+        "title": <report_title>,
+        "summary": <executive_summary>,
+        "rating": <impact_severity_rating>,
+        "rating_explanation": <rating_explanation>,
+        "findings": [
+            {{
+                "summary":<insight_1_summary>,
+                "explanation": <insight_1_explanation>
+            }},
+            {{
+                "summary":<insight_2_summary>,
+                "explanation": <insight_2_explanation>
+            }}
+        ]
+    }}
+
+# 溯源规则
+
+有数据支持的观点应列出其数据引用，格式如下：
+
+"这是一个由多个数据引用支持的例句 [Data: <数据集名称> (记录ID); <数据集名称> (记录ID)]。"
+
+单个引用中不要列出超过5个记录ID。相反，列出最相关的5个记录ID，并添加"+more"以表示还有更多。
+
+例如：
+"人物X是公司Y的拥有者，并受到许多不法行为的指控 [Data: Reports (1), Entities (5, 7); Relationships (23); Claims (7, 2, 34, 64, 46, +more)]。"
+
+其中1, 5, 7, 23, 2, 34, 46, 和64代表相关数据记录的ID（而非索引）。
+
+不要包含没有支持证据的信息。
+
+将报告总长度限制在 {max_report_length} 字以内。
+
+# 示例输入
+-----------
+文本：
+
+实体
+
+human_readable_id,title,description
+5,VERDANT OASIS PLAZA,Verdant Oasis Plaza is the location of the Unity March
+6,HARMONY ASSEMBLY,Harmony Assembly is an organization that is holding a march at Verdant Oasis Plaza
+
+关系
+
+human_readable_id,source,target,description
+37,VERDANT OASIS PLAZA,UNITY MARCH,Verdant Oasis Plaza is the location of the Unity March
+38,VERDANT OASIS PLAZA,HARMONY ASSEMBLY,Harmony Assembly is holding a march at Verdant Oasis Plaza
+39,VERDANT OASIS PLAZA,UNITY MARCH,The Unity March is taking place at Verdant Oasis Plaza
+40,VERDANT OASIS PLAZA,TRIBUNE SPOTLIGHT,Tribune Spotlight is reporting on the Unity march taking place at Verdant Oasis Plaza
+41,VERDANT OASIS PLAZA,BAILEY ASADI,Bailey Asadi is speaking at Verdant Oasis Plaza about the march
+43,HARMONY ASSEMBLY,UNITY MARCH,Harmony Assembly is organizing the Unity March
+
+输出：
+{{
+    "title": "Verdant Oasis Plaza and Unity March",
+    "summary": "The community revolves around the Verdant Oasis Plaza, which is the location of the Unity March. The plaza has relationships with the Harmony Assembly, Unity March, and Tribune Spotlight, all of which are associated with the march event.",
+    "rating": 5.0,
+    "rating_explanation": "The impact severity rating is moderate due to the potential for unrest or conflict during the Unity March.",
+    "findings": [
+        {{
+            "summary": "Verdant Oasis Plaza as the central location",
+            "explanation": "Verdant Oasis Plaza is the central entity in this community, serving as the location for the Unity March. This plaza is the common link between all other entities, suggesting its significance in the community. The plaza's association with the march could potentially lead to issues such as public disorder or conflict, depending on the nature of the march and the reactions it provokes. [Data: Entities (5), Relationships (37, 38, 39, 40, 41,+more)]"
+        }},
+        {{
+            "summary": "Harmony Assembly's role in the community",
+            "explanation": "Harmony Assembly is another key entity in this community, being the organizer of the march at Verdant Oasis Plaza. The nature of Harmony Assembly and its march could be a potential source of threat, depending on their objectives and the reactions they provoke. The relationship between Harmony Assembly and the plaza is crucial in understanding the dynamics of this community. [Data: Entities(6), Relationships (38, 43)]"
+        }},
+        {{
+            "summary": "Unity March as a significant event",
+            "explanation": "The Unity March is a significant event taking place at Verdant Oasis Plaza. This event is a key factor in the community's dynamics and could be a potential source of threat, depending on the nature of the march and the reactions it provokes. The relationship between the march and the plaza is crucial in understanding the dynamics of this community. [Data: Relationships (39)]"
+        }},
+        {{
+            "summary": "Role of Tribune Spotlight",
+            "explanation": "Tribune Spotlight is reporting on the Unity March taking place in Verdant Oasis Plaza. This suggests that the event has attracted media attention, which could amplify its impact on the community. The role of Tribune Spotlight could be significant in shaping public perception of the event and the entities involved. [Data: Relationships (40)]"
+        }}
+    ]
+}}
+
+
+# 实际数据
+
+请使用以下文本来回答。回答中不要编造任何内容。
+
+文本：
+{input_text}
+
+报告应包含以下部分：
+
+- 标题：代表社区关键实体的社区名称 - 标题应简短但具体。在可能的情况下，标题中应包含具有代表性的命名实体。
+- 摘要：社区整体结构、实体之间的相互关系以及与实体相关的重要信息的高层摘要。
+- 影响严重性评级：一个0-10之间的浮点分数，表示社区内实体所带来影响的严重程度。影响是指社区的重要性评分。
+- 评级说明：用一句话解释影响严重性评级。
+- 详细发现：5-10条关于社区的关键见解。每条见解应有一个简短摘要，然后根据下面的溯源规则编写多段解释性文字。要全面。
+
+以格式良好的JSON格式字符串返回输出，格式如下：
+    {{
+        "title": <report_title>,
+        "summary": <executive_summary>,
+        "rating": <impact_severity_rating>,
+        "rating_explanation": <rating_explanation>,
+        "findings": [
+            {{
+                "summary":<insight_1_summary>,
+                "explanation": <insight_1_explanation>
+            }},
+            {{
+                "summary":<insight_2_summary>,
+                "explanation": <insight_2_explanation>
+            }}
+        ]
+    }}
+
+# 溯源规则
+
+有数据支持的观点应列出其数据引用，格式如下：
+
+"这是一个由多个数据引用支持的例句 [Data: <数据集名称> (记录ID); <数据集名称> (记录ID)]。"
+
+单个引用中不要列出超过5个记录ID。相反，列出最相关的5个记录ID，并添加"+more"以表示还有更多。
+
+例如：
+"人物X是公司Y的拥有者，并受到许多不法行为的指控 [Data: Reports (1), Entities (5, 7); Relationships (23); Claims (7, 2, 34, 64, 46, +more)]。"
+
+其中1, 5, 7, 23, 2, 34, 46, 和64代表相关数据记录的ID（而非索引）。
+
+不要包含没有支持证据的信息。
+
+将报告总长度限制在 {max_report_length} 字以内。
+
+输出：

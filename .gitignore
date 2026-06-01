@@ -1,0 +1,61 @@
+# ===== Python 相关 =====
+__pycache__/
+*.py[cod]
+*.so
+.Python
+*.egg-info/
+dist/
+build/
+
+# ===== 虚拟环境 =====
+env/
+venv/
+.venv/
+ENV/
+
+# ===== IDE 和编辑器 =====
+idea/
+.vscode/
+.idea/
+*.swp
+*.swo
+*~
+.DS_Store
+
+# ===== 项目特定：运行时数据 =====
+logs/
+*.log
+
+# ===== 项目特定：临时文件 =====
+=0.26.0
+*.tmp
+*.cache
+
+# ===== 环境变量和密钥 =====
+.env
+.secrets
+
+# ===== GraphRAG 相关 =====
+graphrag/indexed_data/
+graphrag/cache/
+graphrag/output/
+graphrag/input/*.txt
+*.parquet
+
+# ===== 模型文件（太大，不应提交）=====
+model_factory/models/
+model_factory/downloads/
+*.safetensors
+*.bin
+*.pth
+*.pt
+*.onnx
+checkpoint-*/
+model.safetensors
+
+# ===== 数据库文件 =====
+*.db
+*.db-wal
+*.db-shm
+*.sqlite3
+checkpoints.db*

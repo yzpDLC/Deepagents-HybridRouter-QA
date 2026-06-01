@@ -1,0 +1,5 @@
+main_agent: prompts/main_agent.txt
+intent_recognition: prompts/intent_recognition.txt
+web_search: prompts/web_search.txt
+neo4j_query: prompts/neo4j_query.txt
+text_to_video: prompts/text_to_video.txt

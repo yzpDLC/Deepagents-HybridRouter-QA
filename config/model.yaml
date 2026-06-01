@@ -1,0 +1,5 @@
+chat_model_name: deepseek-v4-pro
+embedding_model_name: text-embedding-v4
+
+#deepseek-v4-pro
+#qwen3.5-flash
