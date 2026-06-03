@@ -86,9 +86,10 @@ extract_graph:
   prompt: "prompts/extract_graph.txt"  #在这里可以自定义提示词内容
   entity_types:
     - 术语
-    - 监控设备和仪器
-    - 应急措施
-    - 模型与仿真方法
+    - 部门与角色
+    - 流程步骤
+    - 制度条款
+    - 文档引用
   max_gleanings: 0
   strategy:
     type: "native"

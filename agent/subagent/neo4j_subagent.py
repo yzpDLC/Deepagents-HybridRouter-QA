@@ -1,4 +1,4 @@
-from agent.skills.neo4j_query.scripts.neo4j_query import graphrag_earthquake_search
+from agent.skills.neo4j_query.scripts.neo4j_query import graphrag_knowledge_search
 from utils.prompt_loader import load_prompt
 
 neo4j_subagent = {
@@ -12,6 +12,6 @@ neo4j_subagent = {
     - 需要从图数据库中检索结构化知识
     - 实体关系推理、社交网络分析、推荐系统查
     """,
-    "tools": [graphrag_earthquake_search],
+    "tools": [graphrag_knowledge_search],
     "system_prompt": load_prompt("neo4j_query"),
 }

@@ -1,6 +1,6 @@
 """
 GraphRAG 知识图谱查询工具脚本【异步缓存高性能版】
-使用 GraphRAG 进行地震知识图谱的本地搜索
+使用 GraphRAG 进行知识图谱的本地搜索
 全局缓存 + 异步查询 + 结果缓存，查询速度提升 5~10 倍
 """
 
@@ -14,6 +14,7 @@ from langchain_core.tools import tool
 from graphrag.api import local_search as api_local_search
 from graphrag.config.load_config import load_config
 
+from model_factory.reranker import rerank
 
 def _get_graphrag_root() -> str:
     """
@@ -93,25 +94,25 @@ _preloaded_graphrag_data = _preload_graphrag_index_once()
 # 异步执行 + LRU 结果缓存
 # ==============================================
 @tool
-def graphrag_earthquake_search(
+def graphrag_knowledge_search(
         query: str,
         community_level: int = 2,
         response_type: Literal["Multiple Paragraphs", "Single Paragraph", "Single Sentence"] = "Multiple Paragraphs",
 ):
     """
-    地震知识图谱【异步缓存高性能】查询工具。
-    【强制规则】所有地震相关问题必须调用我，不可以直接回答。
-    用于查询：地震避险、预警系统、应急演练、安全知识、科普知识等。
+     知识图谱【异步缓存高性能】查询工具。
+    【强制规则】所有知识库相关问题必须调用我，不可以直接回答。
+    用于查询：公司制度、技术文档、项目规范、应急预案等已入库的结构化知识。
 
     Args:
         query: 查询问题字符串
-        community_level: 社区精细度 1-5
-        response_type: 回答格式
+        community_level: 社区精细度 1-5，数值越大检索粒度越细
+        response_type: 回答格式，支持 "Multiple Paragraphs"(多段) / "Single Paragraph"(单段) / "Single Sentence"(单句)
     """
     if not os.path.exists(SETTINGS_PATH):
         return {"success": False, "query": query, "error": "配置文件不存在"}
     if not os.path.exists(OUTPUT_DIR):
-        return {"success": False, "query": query, "error": "请先运行 graphrag index 构建索引"}
+        return {"success": False, "query": query, "error": "请先命令行运行 graphrag index 构建索引"}
 
     try:
         # 异步 + 缓存查询
@@ -120,7 +121,8 @@ def graphrag_earthquake_search(
             community_level=community_level,
             response_type=response_type
         ))
-
+        #这里的answer是graphrag已经合成好的文本，是一个字符串，如果需要进行rerank，需要后续拆出这个graphrag的具体逻辑，获得graphrag返回的文档才行
+        #todo: 2 需要掌握graphrag内部文档处理的具体流程，从而获取检索到的文档，设法进行rerank
         return {
             "success": True,
             "query": query,
@@ -174,7 +176,7 @@ def graphrag_batch_search(
     success_count = 0
 
     for q in queries:
-        result = graphrag_earthquake_search(
+        result = graphrag_knowledge_search(
             query=q,
             community_level=community_level
         )
@@ -192,16 +194,16 @@ def graphrag_batch_search(
 
 if __name__ == "__main__":
     import json
-    print("=== GraphRAG 地震知识图谱【异步缓存版】测试 ===")
+    print("=== GraphRAG 知识图谱【异步缓存版】测试 ===")
     print(f"GraphRAG 路径: {GRAPHRAG_ROOT}")
 
     print("\n1. 单次查询测试")
-    res = graphrag_earthquake_search("地震时需要注意什么")
+    res = graphrag_knowledge_search("公司的请假流程是什么")
     print(json.dumps(res, ensure_ascii=False, indent=2))
 
     print("\n2. 批量查询测试")
     batch_res = graphrag_batch_search([
-        "地震系统可以在多长的时间内响应",
-        "地震发生时需要注意什么"
+        "公司的项目管理规范有哪些内容",
+        "请假流程是什么"
     ])
     print(json.dumps(batch_res, ensure_ascii=False, indent=2))

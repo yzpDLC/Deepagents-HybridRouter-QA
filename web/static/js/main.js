@@ -1,5 +1,5 @@
 // ========================================
-// 地震知识智能问答 — 前端逻辑（优化版）
+// 企业内部知识库问答系统 — 前端逻辑
 // ========================================
 
 let isLoading = false;
@@ -527,13 +527,13 @@ function createWelcomeScreen() {
                 </svg>
             </div>
         </div>
-        <h2>地震知识智能问答</h2>
-        <p>基于 Neo4j 知识图谱与网络实时搜索，为您提供专业的地震知识解答</p>
+        <h2>企业内部知识库问答系统</h2>
+        <p>基于知识图谱与网络实时搜索，为您提供专业的企业知识解答</p>
         <div class="welcome-hints">
-            <button class="hint-chip" onclick="sendHint('地震发生时应该怎么做')">地震发生时应该怎么做</button>
-            <button class="hint-chip" onclick="sendHint('什么是地震预警系统')">什么是地震预警系统</button>
-            <button class="hint-chip" onclick="sendHint('汶川地震的基本信息')">汶川地震的基本信息</button>
-            <button class="hint-chip" onclick="sendHint('地震应急演练有哪些内容')">地震应急演练有哪些内容</button>
+            <button class="hint-chip" onclick="sendHint('公司的请假流程是什么')">公司的请假流程是什么</button>
+            <button class="hint-chip" onclick="sendHint('网络安全制度有哪些要求')">网络安全制度有哪些要求</button>
+            <button class="hint-chip" onclick="sendHint('项目管理规范包含哪些内容')">项目管理规范包含哪些内容</button>
+            <button class="hint-chip" onclick="sendHint('公司的保密制度是什么')">公司的保密制度是什么</button>
         </div>
     `;
     return welcome;

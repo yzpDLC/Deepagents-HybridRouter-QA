@@ -30,6 +30,11 @@ logs/
 =0.26.0
 *.tmp
 *.cache
+agent/tmp/
+
+# ===== AI 辅助工作记录 =====
+AGENTS.md
+CLAUDE.md
 
 # ===== 环境变量和密钥 =====
 .env
@@ -39,10 +44,13 @@ logs/
 graphrag/indexed_data/
 graphrag/cache/
 graphrag/output/
-graphrag/input/*.txt
+graphrag/input/
+graphrag/logs/
+graphrag/checkpoints.*
 *.parquet
 
 # ===== 模型文件（太大，不应提交）=====
+models/
 model_factory/models/
 model_factory/downloads/
 *.safetensors
@@ -51,11 +59,9 @@ model_factory/downloads/
 *.pt
 *.onnx
 checkpoint-*/
-model.safetensors
 
 # ===== 数据库文件 =====
 *.db
 *.db-wal
 *.db-shm
 *.sqlite3
-checkpoints.db*

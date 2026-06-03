@@ -66,7 +66,7 @@ async def run_agent_streaming(question: str, cancel_event: asyncio.Event = None,
 
         # ========== 外部路由层：两路并行 + 仲裁 ==========
         routing_result = routing_route(question, thread_id=thread_id)      #这里使用了route函数的别名routing_route
-        intent = routing_result["intent"]
+        intent = routing_result["intent"]      #routing_route函数返回一个字典,用字典的键值匹配来取值
         confidence = routing_result["confidence"]
         source = routing_result["source"]
 
@@ -78,7 +78,7 @@ async def run_agent_streaming(question: str, cancel_event: asyncio.Event = None,
 
         # ========== 构造输入：意图注入 system message ==========
         intent_desc = {
-            "NEO4J_QUERY": "地震知识图谱查询",
+            "NEO4J_QUERY": "企业内部知识图谱查询",
             "WEB_QUERY": "网络实时信息搜索",
             "CREATE": "技能创建",
         }.get(intent, intent)

@@ -15,10 +15,10 @@ from agent.deep_agent import deep_agent
 from agent.utils.deep_agent_run import run_agent_streaming
 
 """
-地震知识智能问答 Web 应用
+企业内部多源知识库问答系统
 启动方式：命令行输入uvicorn web.app:app
 """
-app = FastAPI(title="地震知识智能问答")
+app = FastAPI(title="企业内部多源知识库问答系统")
 
 _cancel_events: dict[str, asyncio.Event] = {}
 
@@ -127,8 +127,8 @@ async def generate_video(request: Request):
     history_text = "\n".join(history_lines)
 
     query = (
-        '【视频生成任务】用户点击了"生成视频"按钮，需要你将以下对话历史中的地震相关知识转化为视频。'
-        "你的工作：1）提取地震知识要点；2）为每个要点写一段100-300字的视频描述；"
+        '【视频生成任务】用户点击了"生成视频"按钮，需要你将以下对话历史中的知识要点转化为视频。'
+        "你的工作：1）提取知识要点；2）为每个要点写一段100-300字的视频描述；"
         "3）调用text_to_video skill依次生成视频。\n\n"
         f"对话历史：\n{history_text}"
     )
@@ -161,4 +161,4 @@ async def generate_video(request: Request):
 
 if __name__ == "__main__":
     import uvicorn
-    uvicorn.run("web.app:app", host="0.0.0.0", port=5000, reload=True)
+    uvicorn.run("web.app:app", host="127.0.0.1", port=5000, reload=True)
