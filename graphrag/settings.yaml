@@ -5,8 +5,8 @@ completion_models:
     model: qwen3.5-flash
     api_base: https://dashscope.aliyuncs.com/compatible-mode/v1
     auth_method: api_key
-    api_key: ${GRAPHRAG_API_KEY}
-    request_timeout: 120.0  # 👈 添加超时设置
+    api_key: sk-ea2b76768622482988e4579aaa87834e
+    request_timeout: 120.0
     max_retries: 3
     retry:
       type: exponential_backoff
@@ -17,7 +17,7 @@ embedding_models:
     model: text-embedding-v4
     api_base: https://dashscope.aliyuncs.com/compatible-mode/v1
     auth_method: api_key
-    api_key: ${GRAPHRAG_API_KEY}
+    api_key: sk-ea2b76768622482988e4579aaa87834e
     request_timeout: 60.0
     max_retries: 3
     retry:
@@ -31,7 +31,7 @@ embedding_models:
 ### ==================== 输入输出配置 ====================
 input:
   type: text
-  base_dir: "input"  # 👈 修复：添加引号
+  base_dir: "../preprocess/chunking_output"
 
 output:
   type: neo4j
@@ -46,7 +46,7 @@ output:
 ### ==================== 存储配置 ====================
 input_storage:
   type: file
-  base_dir: "input"
+  base_dir: "../preprocess/chunking_output"
 
 output_storage:
   type: file
@@ -85,11 +85,10 @@ extract_graph:
   completion_model_id: default_completion_model
   prompt: "prompts/extract_graph.txt"  #在这里可以自定义提示词内容
   entity_types:
-    - 术语
+    - 制度条款
     - 部门与角色
     - 流程步骤
-    - 制度条款
-    - 文档引用
+    - 法律法规引用
   max_gleanings: 0
   strategy:
     type: "native"

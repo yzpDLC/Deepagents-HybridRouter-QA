@@ -32,6 +32,11 @@ logs/
 *.cache
 agent/tmp/
 
+# ===== 预处理生成数据 =====
+preprocess/chunking_output/
+preprocess/*_output/
+preprocess/test_*/
+
 # ===== AI 辅助工作记录 =====
 AGENTS.md
 CLAUDE.md

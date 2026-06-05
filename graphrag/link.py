@@ -5,6 +5,13 @@ import pandas as pd
 from neo4j import GraphDatabase
 
 from config.settings import settings
+"""
+4 条预防graphrag出问题的规则
+改 extract_graph.txt 时必须同步改 settings.yaml 的 entity_types
+删 cache/ 再跑——旧缓存里存着旧 prompt 的结果，不删的话你以为改了但实际用的还是旧数据
+settings.yaml 里 input_storage.base_dir 也要改——只改 input.base_dir 没用，管线实际读的是 input_storage
+改 prompt 后先跑一次小测试——用原来的方法是好的，独立调 LLM 确认它能返回期望的格式
+"""
 
 URI = settings.neo4j_uri
 USER = settings.neo4j_user
@@ -53,57 +60,57 @@ def find_all_files():
 
 files = find_all_files()
 
-print("\n📁 找到的文件:")
+print("\n找到的文件:")
 for key, path in files.items():
-    print(f"   ✅ {key}: {path}")
+    print(f"{key}: {path}")
 
 if 'entities' not in files or 'relationships' not in files:
-    print("\n❌ 找不到实体或关系文件！")
+    print("\n找不到实体或关系文件！")
     exit(1)
 
 # 读取数据
-print("\n📖 读取 parquet 文件...")
+print("\n读取 parquet 文件...")
 entities_df = pd.read_parquet(files['entities'])
 relationships_df = pd.read_parquet(files['relationships'])
 
-print(f"\n✅ 实体: {len(entities_df)} 个")
-print(f"✅ 关系: {len(relationships_df)} 个")
+print(f"\n实体: {len(entities_df)} 个")
+print(f"关系: {len(relationships_df)} 个")
 
 if 'communities' in files:
     communities_df = pd.read_parquet(files['communities'])
-    print(f"✅ 社区: {len(communities_df)} 个")
+    print(f"社区: {len(communities_df)} 个")
 
 if 'community_reports' in files:
     reports_df = pd.read_parquet(files['community_reports'])
-    print(f"✅ 社区报告: {len(reports_df)} 个")
+    print(f"社区报告: {len(reports_df)} 个")
 
 if 'entity_communities' in files:
     entity_comm_df = pd.read_parquet(files['entity_communities'])
-    print(f"✅ 实体-社区映射: {len(entity_comm_df)} 条")
+    print(f"实体-社区映射: {len(entity_comm_df)} 条")
 
 # 显示数据结构
-print("\n📋 数据结构:")
-print(f"   实体列: {entities_df.columns.tolist()}")
-print(f"   关系列: {relationships_df.columns.tolist()}")
+print("\n数据结构:")
+print(f"实体列: {entities_df.columns.tolist()}")
+print(f"关系列: {relationships_df.columns.tolist()}")
 if 'communities' in files:
-    print(f"   社区列: {communities_df.columns.tolist()}")
+    print(f"社区列: {communities_df.columns.tolist()}")
 if 'community_reports' in files:
-    print(f"   社区报告列: {reports_df.columns.tolist()}")
+    print(f"社区报告列: {reports_df.columns.tolist()}")
 
 # 连接到 Neo4j
-print("\n🔌 连接到 Neo4j...")
+print("\n连接到 Neo4j...")
 driver = GraphDatabase.driver(URI, auth=(USER, PASSWORD))
 
 with driver.session() as session:
     result = session.run("RETURN 'Connected!' AS message")
-    print(f"✅ {result.single()['message']}")
+    print(f"{result.single()['message']}")
 
 # 询问是否清空旧数据
 response = input("\n是否清空 Neo4j 中的旧数据？(y/N): ")
 if response.lower() == 'y':
     with driver.session() as session:
         session.run("MATCH (n) DETACH DELETE n")
-        print("✅ 已清空现有数据")
+        print("已清空现有数据")
 
 # ==================== 1. 导入实体 ====================
 print("\n" + "=" * 60)
@@ -136,9 +143,9 @@ with driver.session() as session:
                     rank=float(row.get('rank', 0)) if pd.notna(row.get('rank')) else 0)
 
         if idx < 5:
-            print(f"   ✅ 实体: {row[name_col]} ({row[type_col]})")
+            print(f"实体: {row[name_col]} ({row[type_col]})")
 
-    print(f"✅ 导入 {len(entities_df)} 个实体")
+    print(f"导入 {len(entities_df)} 个实体")
 
 # ==================== 2. 导入关系 ====================
 print("\n" + "=" * 60)
@@ -166,9 +173,9 @@ with driver.session() as session:
         if result.single():
             success += 1
             if idx < 5:
-                print(f"   ✅ 关系: {row['source']} -> {row['target']}")
+                print(f"关系: {row['source']} -> {row['target']}")
 
-    print(f"✅ 导入 {success}/{len(relationships_df)} 个关系")
+    print(f"导入 {success}/{len(relationships_df)} 个关系")
 
 # ==================== 3. 导入社区（关键！）====================
 if 'communities' in files:
@@ -195,9 +202,9 @@ if 'communities' in files:
             """, community_id=community_id, level=level)
 
             if idx < 5:
-                print(f"   ✅ 社区: ID={community_id}, Level={level}")
+                print(f"社区: ID={community_id}, Level={level}")
 
-        print(f"✅ 导入 {len(communities_df)} 个社区")
+        print(f"导入 {len(communities_df)} 个社区")
 
 # ==================== 4. 导入社区报告（最重要！）====================
 if 'community_reports' in files:
@@ -229,9 +236,9 @@ if 'community_reports' in files:
                         summary=summary, rank=rank, level=level)
 
             if idx < 5:
-                print(f"   ✅ 社区报告: ID={community_id}, Title={title[:50]}...")
+                print(f"社区报告: ID={community_id}, Title={title[:50]}...")
 
-        print(f"✅ 导入 {len(reports_df)} 个社区报告")
+        print(f"导入 {len(reports_df)} 个社区报告")
 
 # ==================== 5. 连接实体到社区 ====================
 print("\n" + "=" * 60)
@@ -259,7 +266,7 @@ with driver.session() as session:
                 if result.single():
                     success += 1
 
-        print(f"   ✅ 从映射文件连接了 {success} 个实体到社区")
+        print(f"从映射文件连接了 {success} 个实体到社区")
 
     # 方法2: 从 communities.parquet 的 entity_ids 列解析（主要方法）
     if 'communities' in files:
@@ -321,14 +328,14 @@ with driver.session() as session:
                         pass
 
             if idx < 3:
-                print(f"   ✅ 社区 {community_id}: 连接了 {len(entity_list)} 个实体")
+                print(f"社区 {community_id}: 连接了 {len(entity_list)} 个实体")
 
-        print(f"   ✅ 从 community 文件连接了 {success2} 个实体到社区")
+        print(f"从 community 文件连接了 {success2} 个实体到社区")
         total_success = success + success2
     else:
         total_success = success
 
-    print(f"✅ 共连接 {total_success} 个实体到社区")
+    print(f"共连接 {total_success} 个实体到社区")
 
 # ==================== 验证导入结果 ====================
 print("\n" + "=" * 60)
@@ -340,23 +347,23 @@ with driver.session() as session:
     result = session.run("""
         MATCH (n:Entity) RETURN count(n) as entity_count
     """)
-    print(f"📊 实体节点: {result.single()['entity_count']}")
+    print(f"实体节点: {result.single()['entity_count']}")
 
     result = session.run("""
         MATCH (c:Community) RETURN count(c) as community_count
     """)
-    print(f"📊 社区节点: {result.single()['community_count']}")
+    print(f"社区节点: {result.single()['community_count']}")
 
     result = session.run("""
         MATCH ()-[r:RELATED_TO]->() RETURN count(r) as rel_count
     """)
-    print(f"📊 关系: {result.single()['rel_count']}")
+    print(f"关系: {result.single()['rel_count']}")
 
     result = session.run("""
         MATCH (e:Entity)-[:BELONGS_TO]->(c:Community) 
         RETURN count(*) as membership_count
     """)
-    print(f"📊 实体-社区归属: {result.single()['membership_count']}")
+    print(f"实体-社区归属: {result.single()['membership_count']}")
 
     # 显示社区示例
     result = session.run("""
@@ -366,7 +373,7 @@ with driver.session() as session:
         LIMIT 5
     """)
 
-    print("\n🏘️ 社区示例:")
+    print("\n社区示例:")
     for record in result:
         print(f"   - 社区 {record['c.community_id']} (Level {record['c.level']})")
         print(f"     标题: {record['c.title'][:80] if record['c.title'] else 'N/A'}")
@@ -375,8 +382,8 @@ with driver.session() as session:
 driver.close()
 
 print("\n" + "=" * 60)
-print("🎉 完整数据导入完成！")
+print("完整数据导入完成！")
 print("=" * 60)
-print("\n💡 在 Neo4j Browser 中运行查询:")
+print("\n在 Neo4j Browser 中运行查询:")
 print("   MATCH (c:Community) RETURN c LIMIT 10")
 print("   MATCH (e:Entity)-[:BELONGS_TO]->(c:Community) RETURN e, c LIMIT 25")
