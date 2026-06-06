@@ -2,7 +2,7 @@
 BERT 分类器：加载微调模型进行意图分类
 无模型文件时返回低置信度兜底，规则引擎正常运作
 """
-
+import torch
 import logging
 import os
 from pathlib import Path
@@ -11,7 +11,7 @@ from config.settings import settings
 
 logger = logging.getLogger(__name__)
 
-_PROJECT_ROOT = Path(__file__).resolve().parent.parent.parent
+_PROJECT_ROOT = Path(__file__).resolve().parent.parent.parent #使用Path类解决路径问题
 _MODEL_DIR = _PROJECT_ROOT / settings.bert_model_path
 _MAX_LENGTH = settings.bert_max_length
 
@@ -40,8 +40,10 @@ class BertIntentClassifier:
 
     def _lazy_init(self):
         if self._ready:
-            return
-        self._ready = self._try_load_finetuned()
+            return        #如果加载了就直接返回
+        else:
+            self._ready = self._try_load_finetuned() #否则尝试加载
+
         if self._ready:
             logger.info(f"BERT 分类器: 已加载微调模型 ({_MODEL_DIR})")
         else:
@@ -50,7 +52,7 @@ class BertIntentClassifier:
     def _try_load_finetuned(self) -> bool:
         """尝试加载微调后的分类模型"""
         model_path = str(_MODEL_DIR)
-        if not os.path.isdir(model_path):
+        if not os.path.isdir(model_path):  #路径检测，避免加载不存在的路径
             return False
         try:
             from transformers import BertForSequenceClassification, BertTokenizerFast
@@ -64,8 +66,6 @@ class BertIntentClassifier:
 
     def _predict_finetuned(self, query: str, history_context: str) -> dict:
         """微调 BERT 分类推理"""
-        import torch
-
         try:
             text = f"{history_context}\n[当前]query:{query}" if history_context else query
 

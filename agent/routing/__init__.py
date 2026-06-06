@@ -25,7 +25,7 @@ def route(query: str, thread_id: str | None = None) -> dict:
     history = _context_buffer.get_formatted(thread_id)
 
     # 2. 规则引擎（并行）
-    rule_result = _rule_engine.match(query, history)
+    rule_result = _rule_engine.match(query, history) #暂时用不到历史上下文,只是将用户提问放入规则引擎中,获得一个意图元组(意图，置信度，匹配的关键字)
 
     # 3. BERT 分类器（并行）
     bert_result = _bert_classifier.predict(query, history)

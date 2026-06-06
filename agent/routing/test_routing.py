@@ -53,11 +53,7 @@ def main():
     test_route("最近有什么热点新闻", "WEB_QUERY")
     test_route("帮我搜索一下网络信息", "WEB_QUERY")
 
-    print("\n3. CREATE 测试")
-    test_route("帮我创建一个新技能", "CREATE")
-    test_route("帮我写一个数据处理工具", "CREATE")
-
-    print("\n4. 多轮上下文测试")
+    print("\n3. 多轮上下文测试")
     print("  第1轮: 地震预警是什么")
     r1 = route("地震预警是什么", thread_id="test_session")
     print(f"  → {r1['intent']}")
@@ -66,8 +62,8 @@ def main():
     print(f"  → {r2['intent']}")
     print(f"  上下文: {r2['rule_detail']}")
 
-    print("\n5. 边界情况测试")
-    test_route("你好", "NEO4J_QUERY")  # 低置信度，默认走 NEO4J
+    print("\n4. 边界情况测试")
+    test_route("你好", "CHITCHAT")  # 日常问候，走闲聊
     test_route("今天天气真不错", None)
     test_route("帮我查一下", None)
 

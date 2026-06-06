@@ -77,26 +77,31 @@ async def run_agent_streaming(question: str, cancel_event: asyncio.Event = None,
         )
 
         # ========== 构造输入：意图注入 system message ==========
+        system_message =[]
+
         intent_desc = {
             "NEO4J_QUERY": "企业内部知识图谱查询",
             "WEB_QUERY": "网络实时信息搜索",
-            "CREATE": "技能创建",
-        }.get(intent, intent)
+            "CHITCHAT": "日常闲聊",
+        }.get(intent, intent)   #表示要查找的键为intent 如果匹配上了就返回对应的值，如果没有匹配上就返回键名
 
         routing_system_message = (
-            f"【外部意图分析结果】\n"
-            f"意图: {intent}（{intent_desc}）\n"
+            f"=*5外部意图分析结果=*5\n"
+            f"意图: {intent}\n"
+            f"意图描述: {intent_desc}\n"
             f"置信度: {confidence:.2f}\n"
             f"决策来源: {source}\n\n"
             f"请根据以上意图分类，将用户问题转发给对应的子Agent执行。"
         )
+
+        system_message.append(routing_system_message)
 
         if not hasattr(deep_agent, 'astream'):
             return
 
         inputs = {
             "messages": [
-                {"role": "system", "content": routing_system_message},
+                {"role": "system", "content": system_message},
                 {"role": "user", "content": question},
             ]
         }

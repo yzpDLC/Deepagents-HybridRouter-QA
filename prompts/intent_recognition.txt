@@ -11,6 +11,7 @@
 ## 路由执行规则
 - 外部意图为 **NEO4J_QUERY** → 优先将用户问题转发给 `neo4j-query-agent`，调用知识图谱查询
 - 外部意图为 **WEB_QUERY** → 将用户问题转发给 `web-search-agent`，进行网络搜索
+- 外部意图为 **CHITCHAT** → 直接回复问候语，无需调用任何工具
 - 外部意图为 **text_to_video** 或用户要求生成视频 → 转发给 `text_to_video-agent`
 
 ## 执行约束

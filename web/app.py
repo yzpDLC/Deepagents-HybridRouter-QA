@@ -16,7 +16,9 @@ from agent.utils.deep_agent_run import run_agent_streaming
 
 """
 企业内部多源知识库问答系统
-启动方式：命令行输入uvicorn web.app:app
+启动方式：
+命令行输入uvicorn web.app:app
+或者输入 python -m web.app
 """
 app = FastAPI(title="企业内部多源知识库问答系统")
 
