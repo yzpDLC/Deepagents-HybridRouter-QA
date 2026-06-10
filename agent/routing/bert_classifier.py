@@ -15,7 +15,7 @@ _PROJECT_ROOT = Path(__file__).resolve().parent.parent.parent #使用Path类解�
 _MODEL_DIR = _PROJECT_ROOT / settings.bert_model_path
 _MAX_LENGTH = settings.bert_max_length
 
-ID2LABEL = {0: "NEO4J_QUERY", 1: "WEB_QUERY"}
+ID2LABEL = {0: "NEO4J_QUERY", 1: "WEB_QUERY", 2: "CHITCHAT"}
 
 
 class BertIntentClassifier:

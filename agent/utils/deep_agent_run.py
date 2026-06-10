@@ -8,8 +8,10 @@ from langchain_core.messages import AIMessage, ToolMessage
 
 from agent.deep_agent import deep_agent
 from agent.routing import route as routing_route
+from agent.context import build_messages
+from agent.context.build_memory import save_turn
 
-logger = logging.getLogger(__name__)
+logger = logging.getLogger()
 
 _CHUNK_SIZE = 3  # 每次流式输出的字符数
 _CHUNK_DELAY = 0.02  # 块之间的延迟（秒）
@@ -65,8 +67,8 @@ async def run_agent_streaming(question: str, cancel_event: asyncio.Event = None,
         logger.info(f"开始处理问题: {question[:50]}...")
 
         # ========== 外部路由层：两路并行 + 仲裁 ==========
-        routing_result = routing_route(question, thread_id=thread_id)      #这里使用了route函数的别名routing_route
-        intent = routing_result["intent"]      #routing_route函数返回一个字典,用字典的键值匹配来取值
+        routing_result = routing_route(question, thread_id=thread_id)
+        intent = routing_result["intent"]
         confidence = routing_result["confidence"]
         source = routing_result["source"]
 
@@ -76,36 +78,20 @@ async def run_agent_streaming(question: str, cancel_event: asyncio.Event = None,
             f"BERT={routing_result['bert_detail']}"
         )
 
-        # ========== 构造输入：意图注入 system message ==========
-        system_message =[]
-
-        intent_desc = {
-            "NEO4J_QUERY": "企业内部知识图谱查询",
-            "WEB_QUERY": "网络实时信息搜索",
-            "CHITCHAT": "日常闲聊",
-        }.get(intent, intent)   #表示要查找的键为intent 如果匹配上了就返回对应的值，如果没有匹配上就返回键名
-
-        routing_system_message = (
-            f"=*5外部意图分析结果=*5\n"
-            f"意图: {intent}\n"
-            f"意图描述: {intent_desc}\n"
-            f"置信度: {confidence:.2f}\n"
-            f"决策来源: {source}\n\n"
-            f"请根据以上意图分类，将用户问题转发给对应的子Agent执行。"
-        )
-
-        system_message.append(routing_system_message)
-
+        # ========== 通过上下文模块组装 inputs ==========
         if not hasattr(deep_agent, 'astream'):
             return
 
-        inputs = {
-            "messages": [
-                {"role": "system", "content": system_message},
-                {"role": "user", "content": question},
-            ]
-        }
+        inputs = build_messages(
+            intent=intent,
+            confidence=confidence,
+            question=question,
+            thread_id=thread_id,
+        )
         config = {"configurable": {"thread_id": thread_id or "default_session"}}
+
+        # 收集完整的 AI 回复，用于保存历史
+        full_assistant_response = ""
 
         async for chunk in deep_agent.astream(inputs, config=config, stream_mode="values"):
             if _cancelled():
@@ -129,8 +115,13 @@ async def run_agent_streaming(question: str, cancel_event: asyncio.Event = None,
             if isinstance(last_message, AIMessage):
                 content = _extract_message_content(last_message)
                 if content and isinstance(content, str):
+                    full_assistant_response = content  # 暂存完整回复
                     async for piece in _yield_chunked(content, _cancelled):
                         yield piece
+
+        # ========== 保存本轮对话到历史缓存 ==========
+        if thread_id and full_assistant_response:
+            save_turn(thread_id, question, full_assistant_response)
 
     except Exception as e:
         error_msg = f"处理问题时出错: {str(e)}"

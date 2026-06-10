@@ -1,17 +1,14 @@
 """
 路由层入口：规则引擎 + BERT 分类器 → 仲裁 → 最终意图
 """
-
+from agent.context.build_memory import build_working_memory
 from agent.routing.rule_engine import RuleEngine
 from agent.routing.bert_classifier import BertIntentClassifier
 from agent.routing.arbiter import Arbiter
-from agent.routing.context_buffer import ContextBuffer
 
 _rule_engine = RuleEngine()
 _bert_classifier = BertIntentClassifier()
 _arbiter = Arbiter()
-_context_buffer = ContextBuffer()
-
 
 def route(query: str, thread_id: str | None = None) -> dict:
     """两路并行路由 → 仲裁 → 返回最终意图
@@ -21,20 +18,20 @@ def route(query: str, thread_id: str | None = None) -> dict:
                "rule_result": dict, "bert_result": dict,
                "rule_detail": str, "bert_detail": str}
     """
-    # 1. 获取多轮上下文
-    history = _context_buffer.get_formatted(thread_id)
+    # 1. 获取多轮上下文  bert分类器暂时用不到，手写一段上下文历史填充
+    # history = build_working_memory(thread_id)
+    history=[{"role":"user","content":"你好"},
+             {"role":"assistant","content":"意图:neo4j_query"}]
 
     # 2. 规则引擎（并行）
-    rule_result = _rule_engine.match(query, history) #暂时用不到历史上下文,只是将用户提问放入规则引擎中,获得一个意图元组(意图，置信度，匹配的关键字)
+    rule_result = _rule_engine.match(query) #暂时用不到历史上下文,只是将用户提问放入规则引擎中,获得一个意图元组(意图，置信度，匹配的关键字)
 
     # 3. BERT 分类器（并行）
-    bert_result = _bert_classifier.predict(query, history)
+    bert_result = _bert_classifier.predict(query, history[-1].get("content",""))
 
     # 4. 仲裁
     final_intent, final_confidence = _arbiter.route(rule_result, bert_result)
 
-    # 5. 更新上下文
-    _context_buffer.update(thread_id, query, final_intent)
 
     return {
         "intent": final_intent,
@@ -46,7 +43,3 @@ def route(query: str, thread_id: str | None = None) -> dict:
         "bert_detail": f"{bert_result['intent']}({bert_result['confidence']:.2f})",
     }
 
-
-def reset_context(thread_id: str | None = None):
-    """清空指定会话的上下文"""
-    _context_buffer.clear(thread_id)

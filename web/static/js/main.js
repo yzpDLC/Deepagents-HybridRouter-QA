@@ -6,7 +6,8 @@ let isLoading = false;
 let currentStreamingMessage = null;
 let streamingContent = '';
 let abortController = null;
-let currentSessionId = null;
+/** 会话标识，同一对话窗口共用同一个值，新对话时重新生成 */
+let currentSessionId = 'sess_' + Date.now() + '_' + Math.random().toString(36).slice(2, 8);
 
 const textarea = document.getElementById('message-input');
 const conversation = document.getElementById('conversation');
@@ -113,7 +114,6 @@ async function sendMessage() {
     setLoading(true);
 
     abortController = new AbortController();
-    currentSessionId = 'sess_' + Date.now() + '_' + Math.random().toString(36).slice(2, 8);
     streamingContent = '';
     currentStreamingMessage = createStreamingMessage();
 
@@ -195,7 +195,6 @@ async function sendMessage() {
     } finally {
         currentStreamingMessage = null;
         abortController = null;
-        currentSessionId = null;
     }
 }
 
@@ -224,7 +223,6 @@ async function generateVideo() {
     setLoading(true);
 
     abortController = new AbortController();
-    currentSessionId = 'sess_' + Date.now() + '_' + Math.random().toString(36).slice(2, 8);
     streamingContent = '';
     currentStreamingMessage = createStreamingMessage();
 
@@ -306,7 +304,6 @@ async function generateVideo() {
     } finally {
         currentStreamingMessage = null;
         abortController = null;
-        currentSessionId = null;
     }
 }
 
@@ -505,6 +502,8 @@ function clearChat() {
     streamingContent = '';
     currentStreamingMessage = null;
     abortController = null;
+    // 新对话，重新生成 session_id
+    currentSessionId = 'sess_' + Date.now() + '_' + Math.random().toString(36).slice(2, 8);
 
     if (sendBtn) sendBtn.disabled = false;
     if (stopBtn) stopBtn.style.display = 'none';

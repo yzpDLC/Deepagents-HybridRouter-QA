@@ -31,7 +31,7 @@ _EPOCHS = 3
 _BATCH_SIZE = 16
 _LEARNING_RATE = 2e-5
 
-LABEL2ID = {"NEO4J_QUERY": 0, "WEB_QUERY": 1}
+LABEL2ID = {"NEO4J_QUERY": 0, "WEB_QUERY": 1, "CHITCHAT": 2}
 ID2LABEL = {v: k for k, v in LABEL2ID.items()}
 
 
@@ -70,7 +70,7 @@ def train():
     logger.info(f"加载数据: {DATA_PATH}")
     texts, labels = load_data(DATA_PATH)
     logger.info(f"共 {len(texts)} 条数据")
-    logger.info(f"标签分布: NEO4J_QUERY={labels.count(0)}, WEB_QUERY={labels.count(1)}")
+    logger.info(f"标签分布: NEO4J_QUERY={labels.count(0)}, WEB_QUERY={labels.count(1)}, CHITCHAT={labels.count(2)}")
 
     # 划分数据集
     train_texts, val_texts, train_labels, val_labels = train_test_split(

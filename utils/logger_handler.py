@@ -1,6 +1,8 @@
 from datetime import datetime
 import logging
 import os
+
+from config.settings import settings
 from utils.path_tool import get_abs_path
 
 #日志保存的根目录
@@ -26,7 +28,7 @@ def get_logger(
         return logger
 
     console_handler = logging.StreamHandler()
-    console_handler.setLevel(console_level)
+    console_handler.setLevel(settings.console_level)
     console_handler.setFormatter(DEFAULT_LOG_FORMAT)
 
     logger.addHandler(console_handler)
@@ -35,10 +37,10 @@ def get_logger(
         log_file = os.path.join(LOG_ROOT, f"{name}_{datetime.now().strftime('%Y-%m-%d')}.log")
 
     file_handler = logging.FileHandler(log_file,encoding="utf-8")
-    file_handler.setLevel(file_level)
+    file_handler.setLevel(settings.file_level)
     file_handler.setFormatter(DEFAULT_LOG_FORMAT)
     logger.addHandler(file_handler)
 
     return logger
 
-logger=get_logger()
+logger = get_logger()

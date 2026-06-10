@@ -5,9 +5,10 @@ from typing import Optional
 from langchain_openai import ChatOpenAI
 from langchain_community.embeddings import DashScopeEmbeddings
 from langchain_core.embeddings import Embeddings
-from langchain_community.chat_models.tongyi import BaseChatModel, ChatTongyi
+from langchain_community.chat_models.tongyi import BaseChatModel
 
 from config.settings import settings
+
 
 logger=logging.getLogger(__name__)
 
@@ -20,15 +21,17 @@ class BaseModelFactory(ABC):
 class ChatModelFactory(BaseModelFactory):
     def generator(self) -> Optional[Embeddings | BaseChatModel]:
         model_name = settings.chat_model_name.lower()
+        qwen_model_name : list[str] = ["qwen",]
+        deepseek_model_name : list[str] = ["deepseek",]
 
-        if "qwen" in model_name:
+        if ( qw in model_name for qw in qwen_model_name):
             return ChatOpenAI(
                 model=settings.chat_model_name,
                 api_key=settings.dashscope_api_key,
                 base_url="https://dashscope.aliyuncs.com/compatible-mode/v1",
                 temperature=settings.chat_model_temperature,
             )
-        elif "deepseek" in model_name:
+        elif ( dp in model_name for dp in deepseek_model_name):
             return ChatOpenAI(
                 model=settings.chat_model_name,
                 api_key=settings.deepseek_api_key,
@@ -48,5 +51,4 @@ class EmbeddingFactory(BaseModelFactory):
         return DashScopeEmbeddings(model=settings.embedding_model_name)
 
 
-chat_model=ChatModelFactory().generator()
 embed_model=EmbeddingFactory().generator()

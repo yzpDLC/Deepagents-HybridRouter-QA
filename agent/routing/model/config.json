@@ -11,11 +11,13 @@
   "hidden_size": 768,
   "id2label": {
     "0": "NEO4J_QUERY",
-    "1": "WEB_QUERY"
+    "1": "WEB_QUERY",
+    "2": "CHITCHAT"
   },
   "initializer_range": 0.02,
   "intermediate_size": 3072,
   "label2id": {
+    "CHITCHAT": 2,
     "NEO4J_QUERY": 0,
     "WEB_QUERY": 1
   },

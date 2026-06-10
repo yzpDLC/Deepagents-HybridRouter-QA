@@ -13,7 +13,7 @@ MEDIUM_CONFIDENCE_THRESHOLD = 0.60
 LOW_CONFIDENCE_THRESHOLD = 0.40
 
 # 默认兜底意图（企业内部知识库查询）
-DEFAULT_INTENT = "NEO4J_QUERY"
+DEFAULT_INTENT = "CHITCHAT"
 
 # 仲裁结果来源标识
 SOURCE_RULE = "rule_engine"
@@ -33,7 +33,7 @@ class Arbiter:
     │ 一致                      │ 一致                     │ 采纳（取高置信度）        │
     │ 分歧, 双方 > 0.6           │ 分歧, 双方 > 0.6         │ 采纳 BERT               │
     │ 分歧, 一方 > 0.6           │ 分歧, 一方 < 0.6         │ 采纳高置信度那方          │
-    │ 双方 <= 0.6               │ 双方 <= 0.6              │ 默认 NEO4J_QUERY       │
+    │ 双方 <= 0.6               │ 双方 <= 0.6              │ 默认 CHITCHAT       │
     └──────────────────────────┴──────────────────────────┴──────────────────────┘
     """
 

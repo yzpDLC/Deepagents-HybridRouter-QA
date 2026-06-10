@@ -31,6 +31,14 @@ class Settings(BaseSettings):
     huoshan_api_key: str = ""
     graphrag_api_key: str = ""
 
+    # ========== Failover ==========
+    failover_enabled: bool = True         #容灾开关，是否启动容灾功能，如果遇到故障自动切换本地ollama部署的模型
+    fallback_configured: bool= True       #备用模型是否已经配置
+    failover_model: str = "qwen-flash"
+    failover_base_url: str = ""
+    failover_timeout: int = 30
+    failover_model_temperature: float = 0.7
+
     # ========== BERT Routing ==========
     bert_model_path: str = "agent/routing/model"
     bert_max_length: int = 128
@@ -39,6 +47,11 @@ class Settings(BaseSettings):
     reranker_model_name: str = "bge-reranker-v2-m3"
     reranker_model_path: str = "models/bge-reranker-v2-m3"
     reranker_max_length: int = 8192
+
+    # ========== logs ==========
+    console_level: int= 20
+    file_level: int= 10
+
 
     # 重排模型注册表：这里配置重拍模型的具体名称，最大长度，模型地址和模型描述
     # 新增模型只需在此添加一条记录
@@ -55,6 +68,14 @@ class Settings(BaseSettings):
         #     "description": "轻量重排模型，速度优先",
         # },
     }
+
+    # ========== error type ==========
+    #容灾模块中容灾错误类型种类
+    failover_transient_error: list[str] = ["timeout", "timed out", "connection",
+                                           "5xx", "500", "502", "503",
+                                           "service unavailable","rate limit",
+                                           "429", "too many requests"]
+
 
 
 settings = Settings()
